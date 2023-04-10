@@ -4,19 +4,26 @@ import {
   useJsApiLoader,
   Marker,
   Circle,
+  Polygon,
 } from "@react-google-maps/api";
 
 import { usePositionUser } from "../../hooks/usePositionUser";
 import { GoogleMarker } from "../../models/marker.model";
+import { GoogleAreaCircle } from "../../models/areaCircle.model";
+import AddAreaCircleForm from "./components/AddAreaCircleForm";
+import AddMarkerForm from "./components/AddMarkerForm";
+import AddPolygonForm from "./components/AddPolygonForm";
+import { GoogleAreaPolygon } from "../../models/areaPolygon.model";
+import AddModal from "./components/AddModal";
 
 function Home() {
-  const [latMarker, setLatMarker] = useState(0);
-  const [lngMarker, setLngMarker] = useState(0);
   const { positionUser, geofence } = usePositionUser();
   const [imageSelect, setImageSelect] = useState(
     "https://cdn-icons-png.flaticon.com/512/4287/4287661.png"
   );
   const [markers, setMarkers] = useState<GoogleMarker[]>([]);
+  const [areasCircle, setAreasCircle] = useState<GoogleAreaCircle[]>([]);
+  const [areasPolygon, setAreasPolygon] = useState<GoogleAreaPolygon[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -49,14 +56,20 @@ function Home() {
     setMarkers([...markers, newMarker]);
   };
 
-  const handleSubmitAddMarker = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("click");
-    const size = new window.google.maps.Size(40, 40);
-    const options = { icon: { url: imageSelect, scaledSize: size } };
-    const newMarker = { lat: latMarker, lng: lngMarker, options };
+  const changeImageSelect = (image: string) => {
+    setImageSelect(image);
+  };
 
+  const handleSubmitAddMarker = (newMarker: GoogleMarker) => {
     setMarkers([...markers, newMarker]);
+  };
+
+  const handleSubmitAddAreaCircle = (newAreaCircle: GoogleAreaCircle) => {
+    setAreasCircle([...areasCircle, newAreaCircle]);
+  };
+
+  const handleSubmitAddAreaPolygon = (newPolygon: GoogleAreaPolygon) => {
+    setAreasPolygon([...areasPolygon, newPolygon]);
   };
 
   return (
@@ -65,7 +78,7 @@ function Home() {
         <div className="">
           {isLoaded ? (
             <GoogleMap
-              mapContainerStyle={{ width: "1000px", height: "500px" }}
+              mapContainerStyle={{ width: "800px", height: "500px" }}
               zoom={10}
               center={positionUser}
               onLoad={onLoad}
@@ -86,6 +99,33 @@ function Home() {
                   onClick={mapClickAddMarker}
                 />
               )}
+              {areasCircle.map((areaCircle, index) => (
+                <Circle
+                  key={index}
+                  center={areaCircle.center}
+                  radius={areaCircle.radius}
+                  options={{
+                    strokeColor: "#7CB9E8",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#7CB9E8",
+                    fillOpacity: 0.35,
+                  }}
+                />
+              ))}
+              {areasPolygon.map((areaPolygon, index) => (
+                <Polygon
+                  key={index}
+                  path={areaPolygon}
+                  options={{
+                    strokeColor: "#7CB9E8",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#7CB9E8",
+                    fillOpacity: 0.35,
+                  }}
+                />
+              ))}
               {markers.map((marker, index) => (
                 <Marker
                   key={index}
@@ -114,98 +154,23 @@ function Home() {
             <></>
           )}
         </div>
-        <div>
-          <div className="w-full max-w-xs">
-            <form
-              onSubmit={handleSubmitAddMarker}
-              className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-            >
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Latitud
-                </label>
-                <input
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setLatMarker(parseFloat(e.target.value))
-                  }
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="username"
-                  type="number"
-                  step={0.000001}
-                  placeholder="-17.785511"
-                  required={true}
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Longitud
-                </label>
-                <input
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setLngMarker(parseFloat(e.target.value))
-                  }
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="long"
-                  type="number"
-                  step={0.000001}
-                  placeholder="-63.181606"
-                  required={true}
-                />
-              </div>
-              <select
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  setImageSelect(e.target.value)
-                }
-                name="imageUrl"
-                id="imageUrl"
-                className="shadow border rounded mb-6 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="https://cdn-icons-png.flaticon.com/512/4287/4287661.png">
-                  Marker image 1
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/5385/5385604.png">
-                  Marker image 2
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/9805/9805408.png">
-                  Marker image 3
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/10162/10162966.png">
-                  Marker image 4
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/6984/6984992.png">
-                  Marker image 5
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/9924/9924062.png">
-                  Marker image 6
-                </option>
-                <option value="https://cdn-icons-png.flaticon.com/512/1301/1301472.png">
-                  Marker image 7
-                </option>
-              </select>
-              <div className="flex justify-center mb-6  ">
-                <img
-                  src={imageSelect}
-                  alt="Imagen del marker"
-                  width={50}
-                  height={50}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="submit"
-                >
-                  Add marker
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className=" flex justify-center items-center gap-2">
+          {/* Add Markers */}
+          <AddMarkerForm
+            addMarker={handleSubmitAddMarker}
+            changeImage={changeImageSelect}
+          />
+          {/* Add Area Circle */}
+          <AddAreaCircleForm addAreaCircle={handleSubmitAddAreaCircle} />
         </div>
+        {/*  */}
       </div>
+      {/* Add Area Polygon */}
+      <AddPolygonForm addAreaPolygon={handleSubmitAddAreaPolygon} />
+      {/* <AddModal /> */}
     </div>
   );
 }
 
 export default Home;
 
-// AIzaSyBzS9_7NpUEiB0sPkDVJo0ieas4heVaBxA
