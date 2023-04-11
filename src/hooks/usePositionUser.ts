@@ -11,7 +11,7 @@ export const usePositionUser = () => {
     center: PositionType;
     radius: number;
   }>({
-    center: { lat: -17.777029, lng: -63.200623 },
+    center: { lat: -1, lng: -6 },
     radius: 1000,
   });
 

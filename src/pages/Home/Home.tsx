@@ -29,7 +29,7 @@ function Home() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: "YOUR_API_KEY",
-  });
+  }); 
 
   const onLoad = useCallback(
     (map: google.maps.Map) => {
